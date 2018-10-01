@@ -1,0 +1,183 @@
+---
+title: "MA615 Assignment 3"
+author: "Andrew Zhang, Ningze Zu, Albert Ding, Jiahao Xu"
+date: "9/30/2018"
+output: pdf_document
+---
+
+https://www.kaggle.com/drgilermo/nba-players-stats#Seasons_Stats.csv
+
+There is a schema for each of the variables available in the link above.
+
+Also put your name as an author above.
+
+```{r, Andrew}
+library(dplyr)
+library(ggplot2)
+season_ball <- read.csv("Seasons_Stats.csv")
+season_ball$blank2 <- NULL
+season_ball$blanl <- NULL
+season_ball <- na.omit(season_ball)
+
+## Looking and comparing win shares and number of three pointers made
+## Comparing different eras of basketball to understand styles of play
+
+## 2017 Season
+ball_2017 <- season_ball %>% filter(Year == 2017)
+
+ball_2017 %>% arrange(desc(X3P))
+ball_2017 %>% arrange(desc(WS))
+
+ggplot(ball_2017, aes(X3P, WS)) + geom_point() +
+  geom_smooth(method = "lm")
+
+## 2010 Season
+ball_2010 <- season_ball %>% filter(Year == 2010)
+
+ball_2010 %>% arrange(desc(X3P))
+ball_2010 %>% arrange(desc(WS))
+
+ggplot(ball_2010, aes(X3P, WS)) + geom_point() +
+  geom_smooth(method = "lm")
+
+## 2003 Season
+ball_2003 <- season_ball %>% filter(Year == 2003)
+
+ball_2003 %>% arrange(desc(X3P))
+ball_2003 %>% arrange(desc(WS))
+
+ggplot(ball_2003, aes(X3P, WS)) + geom_point() +
+  geom_smooth(method = "lm")
+
+## Look at the number of 3 pointers made per team
+## Notice the top teams from 2017 have some of the highest number of 3 pointers made
+
+ball_2017 %>% group_by(Tm) %>% summarize(sum(X3P))
+```
+
+We can see a more positive trend for the 2017 data. This can possibly indicate more of a correlation between number of threes made and how well a team might do.
+
+```{r, age}
+ball_2017 %>% arrange(desc(Age))
+
+ggplot(ball_2017, aes(Age, MP)) + geom_point() +
+  geom_smooth(method = "lm")
+
+ggplot(ball_2010, aes(Age, MP)) + geom_point() +
+  geom_smooth(method = "lm")
+
+ggplot(ball_2003, aes(Age, MP)) + geom_point() +
+  geom_smooth(method = "lm")
+```
+
+```{r, Albert}
+library(dplyr)
+library(ggplot2)
+season_ball <- read.csv("Seasons_Stats.csv")
+season_ball$blank2 <- NULL
+season_ball$blanl <- NULL
+season_ball <- na.omit(season_ball)
+
+## Here, we will examine the trend of points per season between free throws and field goals. 
+
+##Comparing different years of basketball will help us understand how offenses evolved in terms of scoring.  
+
+##We have filtered only for years after 1980 because that was the year in which three pointers were first installed into the league, which we think may have affected the balance of offense. 
+
+##Years after 1980:
+threepointera <- season_ball %>% filter(Year >= 1980)
+
+
+##Looking at overall field goal trends:
+threepointera %>% arrange(desc(Year))
+
+threepointera %>% group_by(Year) %>% summarize(sum(FG))
+
+ggplot(threepointera, aes(Year, FG)) + geom_point() +
+  geom_smooth(method = "lm")
+
+##Looking at free throw trends:
+threepointera %>% arrange(desc(Year))
+
+threepointera %>% group_by(Year) %>% summarize(sum(FT))
+
+ggplot(threepointera, aes(Year,FT)) + geom_point() +
+  geom_smooth(method = "lm")
+
+##Looking at field goal trends:
+threepointera %>% arrange(desc(Year))
+
+threepointera %>% group_by(Year) %>% summarize(sum(FG))
+
+ggplot(threepointera, aes(Year,FG)) + geom_point() +
+  geom_smooth(method = "lm")
+
+
+
+```
+
+
+```{r}
+#Players' age over 25
+ball1 <- filter(season_ball, !is.na(Age) & Age >= 25)
+ball1
+
+ball2 <- select(ball1, Year, Player, Tm, Age, Pos, G, PTS)
+ball2
+
+arrange(ball2, desc(PTS))
+
+ggplot(ball2, aes(Age, PTS)) + geom_point() +
+  geom_smooth(method = "lm")
+
+#2008 Season
+b1 <- filter(season_ball, Year==2008)
+b2 <- select(b1, Year, Player, Tm, Age, Pos, G, X3P, X2P, PTS) 
+b2
+
+b2 %>%
+  arrange(desc(PTS)) %>%
+  summarise(total = n(), min.PTS = min(PTS), average.PTS = mean(PTS), max.PTS = max(PTS))
+
+b2 %>%
+  arrange(desc(X3P)) %>%
+  summarise(total = n(), min.X3P = min(X3P), average.X3P = mean(X3P), max.X3P = max(X3P))
+
+b2 %>%
+  arrange(desc(X2P)) %>%
+  summarise(total = n(), min.X2P = min(X2P), average.X2P = mean(X2P), max.X2P = max(X2P))
+  
+b2 %>%
+  group_by(Tm) %>%
+  summarise(N = n(), avg_PTS = mean(PTS, na.rm=TRUE)) 
+
+ggplot(b2, aes(G,PTS)) + geom_point() + 
+  geom_smooth(method = "lm")
+
+ggplot(b2, aes(X3P,PTS)) + geom_point() + 
+  geom_smooth(method = "lm")
+
+ggplot(b2, aes(X2P,PTS)) + geom_point() + 
+  geom_smooth(method = "lm")
+```
+
+```{r, Jiahao}
+library(stringr)
+season_ball <- read.csv("Seasons_Stats.csv")
+
+# data in Season 2009 with players' age over 20 and made points are not zero
+ball_2009_20 <- filter(season_ball,Age>20 & Year==2009 & !is.na(PTS))
+ball1111 <- filter(ball_2009_20, !(str_detect(string = ball_2009_20 $Tm,pattern = "TOT"))) %>% group_by(Player) %>% 
+  select(Year, Player, Pos, PER,Age, Tm, G,X3P, X2P, PTS ) %>%
+  mutate(Average_PTS=PTS/G)  %>%
+  arrange(desc(Average_PTS))
+ball1111
+
+# We want to figure out the relationship between Age and Average_PTS
+ggplot(ball1111)+geom_point(mapping = aes(x=Age, y=Average_PTS))+geom_smooth(mapping = aes(x=Age, y=Average_PTS)) +ggtitle("Jiahao Xu's plot")
+# We want to figure out the relationship between PER and Average_PTS, which is the scoring efficiency
+ggplot(ball1111)+geom_point(mapping = aes(x=PER, y=Average_PTS))+geom_smooth(mapping = aes(x=PER, y=Average_PTS)) +ggtitle("Jiahao Xu's plot")
+# We want to figure out the relationship between 2 points made and PER
+ggplot(ball1111)+geom_point(mapping = aes(x=X2P, y=PER))+geom_smooth(mapping = aes(x=X2P, y=PER)) +ggtitle("Jiahao Xu's plot")
+```
+
